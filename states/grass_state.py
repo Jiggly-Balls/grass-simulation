@@ -39,23 +39,23 @@ class GrassState(State):
             current_vec = pygame.Vector2(*mouse_pos) - self.offset
 
             # 3x3 brush
-            all_vecs = [current_vec.copy() for _ in range(9)]
-            all_vecs[1].x += GRASS_SPACING
-            all_vecs[2].x += GRASS_SPACING * 2
-            all_vecs[3].y += GRASS_SPACING
-            all_vecs[4].x += GRASS_SPACING
-            all_vecs[4].y += GRASS_SPACING
-            all_vecs[5].x += GRASS_SPACING * 2
-            all_vecs[5].y += GRASS_SPACING
-            all_vecs[6].y += GRASS_SPACING * 2
-            all_vecs[7].x += GRASS_SPACING
-            all_vecs[7].y += GRASS_SPACING * 2
-            all_vecs[8].x += GRASS_SPACING * 2
-            all_vecs[8].y += GRASS_SPACING * 2
+            brush_vectors = [current_vec.copy() for _ in range(9)]
+            brush_vectors[1].x += GRASS_SPACING
+            brush_vectors[2].x += GRASS_SPACING * 2
+            brush_vectors[3].y += GRASS_SPACING
+            brush_vectors[4].x += GRASS_SPACING
+            brush_vectors[4].y += GRASS_SPACING
+            brush_vectors[5].x += GRASS_SPACING * 2
+            brush_vectors[5].y += GRASS_SPACING
+            brush_vectors[6].y += GRASS_SPACING * 2
+            brush_vectors[7].x += GRASS_SPACING
+            brush_vectors[7].y += GRASS_SPACING * 2
+            brush_vectors[8].x += GRASS_SPACING * 2
+            brush_vectors[8].y += GRASS_SPACING * 2
 
-            for vec in all_vecs:
+            for brush_vector in brush_vectors:
                 if all(
-                    (grass_vec - vec).magnitude() > GRASS_SPACING
+                    (grass_vec - brush_vector).magnitude() > GRASS_SPACING
                     for grass_vec in self.grass_vecs
                 ):
                     print(len(self.grass_group.spritedict))
@@ -63,10 +63,10 @@ class GrassState(State):
                         GrassSprite(
                             self.grass_group,
                             random.choice(self.grass_sprites),
-                            vec,
+                            brush_vector,
                         )
                     )
-                    self.grass_vecs.append(vec)
+                    self.grass_vecs.append(brush_vector)
 
                     sorted_sprites = sorted(
                         self.grass_group.spritedict.items(),

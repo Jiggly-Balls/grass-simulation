@@ -7,7 +7,7 @@ __version__ = "0.1.0"
 
 pygame.init()
 pygame.display.init()
-pygame.display.set_caption("Torchless v" + __version__)
+pygame.display.set_caption("Gass Simulation v" + __version__)
 
 
 def main() -> None:
