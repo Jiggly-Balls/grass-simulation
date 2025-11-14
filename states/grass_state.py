@@ -31,12 +31,33 @@ class GrassState(State):
         self.offset: Vector2 = pygame.Vector2()
         self.direction: Vector2 = pygame.Vector2()
         self.speed: int = 500
+        self.expansion_pad: int = 100
+
+    def handle_grass_expansion(self, mouse_pos: Vector2) -> None:
+        surf_rect = self.grass_group.grass_surf.get_rect()
+        if surf_rect.left > mouse_pos.x or surf_rect.right < mouse_pos.x:
+            print("OUTSIDE X")
+            dest_x = 0
+            width = mouse_pos.x
+
+            if width < 0:
+                dest_x = width
+                width = abs(width)
+
+            new_surf = pygame.Surface((surf_rect.height, width))
+            new_surf.blit(self.grass_group.grass_surf, (dest_x, 0))
+            self.grass_group.grass_surf = new_surf
+
+        if surf_rect.top > mouse_pos.y or surf_rect.bottom < mouse_pos.y:
+            print("OUTSIDE Y")
+            new_surf = ...
 
     def handle_grass(self) -> None:
         mouse_button_state = pygame.mouse.get_pressed()
         if mouse_button_state[0]:
             mouse_pos = pygame.mouse.get_pos()
             current_vec = pygame.Vector2(*mouse_pos) - self.offset
+            # self.handle_grass_expansion(current_vec)
 
             # 3x3 brush
             brush_vectors = [current_vec.copy() for _ in range(9)]
@@ -58,21 +79,20 @@ class GrassState(State):
                     (grass_vec - brush_vector).magnitude() > GRASS_SPACING
                     for grass_vec in self.grass_vecs
                 ):
-                    print(len(self.grass_group.spritedict))
+                    # print(len(self.grass_group.grass_objects))
                     self.grass_group.add(
                         GrassSprite(
-                            self.grass_group,
                             random.choice(self.grass_sprites),
                             brush_vector,
                         )
                     )
                     self.grass_vecs.append(brush_vector)
 
-                    sorted_sprites = sorted(
-                        self.grass_group.spritedict.items(),
-                        key=lambda item: item[0].rect.y,
-                    )
-                    self.grass_group.spritedict = dict(sorted_sprites)
+                    # sorted_sprites = sorted(
+                    #     self.grass_group.spritedict.items(),
+                    #     key=lambda item: item[0].rect.y,
+                    # )
+                    # self.grass_group.spritedict = dict(sorted_sprites)
 
     def handle_movement(self, dt: float) -> None:
         key_pressed = pygame.key.get_pressed()
