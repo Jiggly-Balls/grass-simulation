@@ -4,12 +4,12 @@ import random
 from typing import TYPE_CHECKING
 
 import pygame
-from game_state import State
 from game_state.utils import StateArgs
 
 from core.grass import GrassGroup, GrassSprite
 from core.utils import load_sprite_sheet
 from data.constants import GRASS_SPACING, GRASS_SPRITE_SHEET
+from states.base_state import BaseState
 
 if TYPE_CHECKING:
     from typing import Any
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from pygame import Clock, Event, Font, Surface, Vector2
 
 
-class GrassState(State):
+class GrassState(BaseState):
     def __init__(self, clock: Clock) -> None:
         self.clock: Clock = clock
         self.font: Font = pygame.font.SysFont("Arial", 24)
@@ -130,10 +130,10 @@ class GrassState(State):
         #     if event.button == 1:
         #         # print(event.pos)
 
-    def process_update(self, *args: Any) -> None:
+    def process_update(self, dt: float) -> None:
         self.window.fill((50, 50, 50))
 
-        self.handle_movement(args[0])
+        self.handle_movement(dt)
         self.handle_grass()
 
         self.grass_group.draw(self.window, self.offset)

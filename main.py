@@ -2,6 +2,7 @@ import pygame
 from game_state import StateManager
 
 from data.constants import FPS, SCREEN_RESOLUTION
+from states.base_state import BaseState
 
 __version__ = "0.1.0"
 
@@ -11,10 +12,12 @@ pygame.display.set_caption("Gass Simulation v" + __version__)
 
 
 def main() -> None:
-    screen = pygame.display.set_mode(SCREEN_RESOLUTION)
+    window = pygame.display.set_mode(SCREEN_RESOLUTION)
     clock = pygame.time.Clock()
 
-    manager = StateManager(screen)
+    manager = StateManager[BaseState](
+        window=window, bound_state_type=BaseState
+    )
     manager.connect_state_hook("states.grass_state", clock=clock)
     manager.change_state("GrassState")
 
