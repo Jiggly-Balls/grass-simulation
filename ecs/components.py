@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from game_state.utils import MISSING
 
 if TYPE_CHECKING:
-    from pygame import Surface
+    from pygame import Surface, Vector2
 
 
 @dataclass(slots=True)
@@ -24,6 +24,9 @@ class Renderable:
 
 @dataclass(slots=True)
 class Transform:
-    x: int
-    y: int
     rotation: float
+    offset: Vector2 = MISSING
+
+    def __post_init__(self) -> None:
+        if self.offset is MISSING:
+            self.offset = Vector2()
