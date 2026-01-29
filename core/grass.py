@@ -77,7 +77,7 @@ class GrassGroup:
         #     for sprite in self.grass_objects
         # )
 
-    def draw(self, surface: Surface, offset: Vector2) -> None:  # pyright: ignore[reportIncompatibleMethodOverride]
+    def draw(self, surface: Surface, offset: Vector2) -> None:
         # surface.blits(
         #     (spr.image, spr.rect.topleft + offset) for spr in self.sprites()
         # )
