@@ -135,7 +135,9 @@ class MainState(BaseState, state_name=WorldEnum.MAIN):
     def process_update(self, dt: float) -> None:
         self.window.fill((50, 50, 50))
 
-        self.handle_movement(dt)
+        self.process_movement.update(dt)
+
+        # self.handle_movement(dt)
         self.handle_grass()
 
         self.grass_group.draw(self.window, self.offset)
