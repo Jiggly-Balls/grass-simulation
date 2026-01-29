@@ -1,3 +1,4 @@
+import esper
 import pygame
 from game_state import StateManager
 
@@ -20,6 +21,8 @@ def main() -> None:
     )
     manager.connect_state_hook("states.main_state", clock=clock)
     manager.change_state(state_name=WorldEnum.MAIN)
+
+    esper.switch_world(WorldEnum.MAIN)
 
     assert manager.current_state is not None
 

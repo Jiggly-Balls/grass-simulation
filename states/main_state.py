@@ -94,6 +94,8 @@ class MainState(BaseState, state_name=WorldEnum.MAIN):
                     # )
                     # self.grass_group.spritedict = dict(sorted_sprites)
 
+    def handle_grass_new(self) -> None: ...
+
     def handle_movement(self, dt: float) -> None:
         key_pressed = pygame.key.get_pressed()
 
