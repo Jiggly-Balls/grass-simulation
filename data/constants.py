@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from enum import StrEnum, auto
+
+
 __all__ = (
     "FPS",
     "TILE_SIZE",
@@ -16,3 +19,7 @@ SCREEN_RESOLUTION: tuple[int, int] = (1000, 600)
 BASE_ASSET_PATH = "assets/"
 GRASS_SPRITE_SHEET = BASE_ASSET_PATH + "grass.png"
 GRASS_SPACING: int = 15
+
+
+class WorldEnum(StrEnum):
+    MAIN = auto()
