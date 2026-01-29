@@ -1,7 +1,7 @@
 import pygame
 from game_state import StateManager
 
-from data.constants import FPS, SCREEN_RESOLUTION
+from data.constants import FPS, SCREEN_RESOLUTION, WorldEnum
 from states.base_state import BaseState
 
 __version__ = "0.1.0"
@@ -18,8 +18,8 @@ def main() -> None:
     manager = StateManager[BaseState](
         window=window, bound_state_type=BaseState
     )
-    manager.connect_state_hook("states.grass_state", clock=clock)
-    manager.change_state("GrassState")
+    manager.connect_state_hook("states.main_state", clock=clock)
+    manager.change_state(state_name=WorldEnum.MAIN)
 
     assert manager.current_state is not None
 

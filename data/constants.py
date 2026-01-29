@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from enum import StrEnum, auto
 
-
 __all__ = (
     "FPS",
     "TILE_SIZE",

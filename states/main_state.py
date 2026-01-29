@@ -8,7 +8,7 @@ from game_state.utils import StateArgs
 
 from core.grass import GrassGroup, GrassSprite
 from core.utils import load_sprite_sheet
-from data.constants import GRASS_SPACING, GRASS_SPRITE_SHEET
+from data.constants import GRASS_SPACING, GRASS_SPRITE_SHEET, WorldEnum
 from states.base_state import BaseState
 
 if TYPE_CHECKING:
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from pygame import Clock, Event, Font, Surface, Vector2
 
 
-class GrassState(BaseState):
+class MainState(BaseState, state_name=WorldEnum.MAIN):
     def __init__(self, clock: Clock) -> None:
         self.clock: Clock = clock
         self.font: Font = pygame.font.SysFont("Arial", 24)
@@ -144,6 +144,6 @@ class GrassState(BaseState):
 
 
 def hook(**kwargs: Any) -> None:
-    GrassState.manager.load_states(
-        GrassState, state_args=[StateArgs(state_name="GrassState", **kwargs)]
+    MainState.manager.load_states(
+        MainState, state_args=[StateArgs(state_name=WorldEnum.MAIN, **kwargs)]
     )
