@@ -7,7 +7,7 @@ import pygame
 from game_state.utils import StateArgs
 
 from core.grass import GrassGroup, GrassSprite
-from core.utils import load_sprite_sheet
+from core.utils import get_sprite_sheet
 from data.constants import GRASS_SPACING, GRASS_SPRITE_SHEET, WorldEnum
 from states.base_state import BaseState
 
@@ -22,7 +22,7 @@ class MainState(BaseState, state_name=WorldEnum.MAIN):
         self.clock: Clock = clock
         self.font: Font = pygame.font.SysFont("Arial", 24)
 
-        self.grass_sprites: list[Surface] = load_sprite_sheet(
+        self.grass_sprites: list[Surface] = get_sprite_sheet(
             GRASS_SPRITE_SHEET
         )
         self.grass_group: GrassGroup = GrassGroup()
@@ -136,11 +136,12 @@ class MainState(BaseState, state_name=WorldEnum.MAIN):
         self.window.fill((50, 50, 50))
 
         self.process_movement.update(dt)
+        self.process_add_grass.update()
+        self.process_render.update(self.window)
 
         # self.handle_movement(dt)
         # self.handle_grass()
-
-        self.grass_group.draw(self.window, self.offset)
+        # self.grass_group.draw(self.window, self.offset)
 
         self.handle_fps()
 
