@@ -24,9 +24,9 @@ class Renderable:
 
 @dataclass(slots=True)
 class Transform:
-    rotation: float
-    offset: Vector2 = MISSING
+    rotation: float = 0.0
+    position: Vector2 = MISSING
 
     def __post_init__(self) -> None:
-        if self.offset is MISSING:
-            self.offset = Vector2()
+        if self.position is MISSING:
+            self.position = Vector2()
