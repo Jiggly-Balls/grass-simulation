@@ -138,7 +138,7 @@ class MainState(BaseState, state_name=WorldEnum.MAIN):
         self.process_movement.update(dt)
 
         # self.handle_movement(dt)
-        self.handle_grass()
+        # self.handle_grass()
 
         self.grass_group.draw(self.window, self.offset)
 
