@@ -7,7 +7,7 @@ import pygame
 from game_state import StateManager
 
 from data.constants import FPS, SCREEN_RESOLUTION, WorldEnum
-from ecs.processes import MovementProcess
+from ecs.processes import AddGrassProcess, MovementProcess, RenderProcess
 from states.base_state import BaseState
 
 if TYPE_CHECKING:
@@ -21,7 +21,11 @@ pygame.display.set_caption("Gass Simulation v" + __version__)
 
 
 def load_processes() -> dict[str, Processor]:
-    return {"process_movement": MovementProcess()}
+    return {
+        "process_add_grass": AddGrassProcess(),
+        "process_movement": MovementProcess(),
+        "process_render": RenderProcess(),
+    }
 
 
 def main() -> None:
