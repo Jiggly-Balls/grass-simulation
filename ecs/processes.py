@@ -7,7 +7,7 @@ import esper
 import pygame
 from esper import Processor
 
-from core.utils import load_sprite_sheet
+from core.utils import get_sprite_sheet
 from data.constants import (
     GRASS_SPACING,
     GRASS_SPRITE_SHEET,
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 @final
 class MovementProcess(Processor):
     priority: int = int(ProcessorPriority.MOVEMENT)
-    offset: Vector2 = Vector2()
+    offset: Vector2 = pygame.Vector2()
 
     def __init__(self) -> None:
         self.direction: Vector2 = pygame.Vector2()
@@ -56,10 +56,10 @@ class MovementProcess(Processor):
 @final
 class AddGrassProcess(Processor):
     priority: int = int(ProcessorPriority.ADD_GRASS)
-    grass_sprites: list[Surface] = load_sprite_sheet(GRASS_SPRITE_SHEET)
 
     def __init__(self) -> None:
         self.grass_vecs: list[Vector2] = []
+        self.grass = 0
 
     def update(self) -> None:
         mouse_button_state = pygame.mouse.get_pressed()
@@ -99,9 +99,15 @@ class AddGrassProcess(Processor):
                     self.grass_vecs.append(brush_vector)
 
                     esper.create_entity(
-                        Renderable(image=random.choice(self.grass_sprites)),
+                        Renderable(
+                            image=random.choice(
+                                get_sprite_sheet(GRASS_SPRITE_SHEET)
+                            )
+                        ),
                         Transform(position=brush_vector),
                     )
+                    self.grass += 1
+                    print(f"CREATED {self.grass} GRASS")
 
                     # sorted_sprites = sorted(
                     #     self.grass_group.spritedict.items(),
@@ -113,4 +119,10 @@ class AddGrassProcess(Processor):
 class RenderProcess(Processor):
     priority: int = int(ProcessorPriority.RENDER)
 
-    def update(self) -> None: ...
+    def update(self, window: Surface) -> None:
+        for _, (renderable, transform) in esper.get_components(
+            Renderable, Transform
+        ):
+            window.blit(
+                renderable.image, transform.position + MovementProcess.offset
+            )
