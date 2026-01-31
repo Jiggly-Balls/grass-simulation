@@ -5,7 +5,7 @@ import pygame
 from game_state import StateManager
 
 from data.constants import FPS, SCREEN_RESOLUTION, WorldEnum
-from ecs.processes import BaseProcessor
+from ecs.processors import BaseProcessor
 from states.base_state import BaseState
 
 __version__ = "0.1.0"
