@@ -1,31 +1,18 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import esper
 import pygame
 from game_state import StateManager
 
 from data.constants import FPS, SCREEN_RESOLUTION, WorldEnum
-from ecs.processes import AddGrassProcess, MovementProcess, RenderProcess
+from ecs.processes import BaseProcessor
 from states.base_state import BaseState
-
-if TYPE_CHECKING:
-    from esper import Processor
 
 __version__ = "0.1.0"
 
 pygame.init()
 pygame.display.init()
 pygame.display.set_caption("Gass Simulation v" + __version__)
-
-
-def load_processes() -> dict[str, Processor]:
-    return {
-        "process_add_grass": AddGrassProcess(),
-        "process_movement": MovementProcess(),
-        "process_render": RenderProcess(),
-    }
 
 
 def main() -> None:
@@ -35,12 +22,13 @@ def main() -> None:
     manager = StateManager[BaseState](
         bound_state_type=BaseState,
         window=window,
-        **load_processes(),
     )
     manager.connect_state_hook("states.main_state", clock=clock)
     manager.change_state(state_name=WorldEnum.MAIN)
 
     esper.switch_world(WorldEnum.MAIN)
+    for processor in BaseProcessor.cls_processors:
+        esper.add_processor(processor_instance=processor())
 
     assert manager.current_state is not None
 
