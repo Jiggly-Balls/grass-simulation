@@ -25,11 +25,6 @@ class MainState(BaseState, state_name=WorldEnum.MAIN):
         self.speed: int = 500
         self.expansion_pad: int = 100
 
-    def handle_fps(self) -> None:
-        fps = self.clock.get_fps()
-        fps_text = self.font.render(f"FPS: {int(fps)}", False, (255, 255, 255))
-        self.window.blit(fps_text, (10, 10))
-
     def process_event(self, event: Event) -> None:
         if event.type == pygame.QUIT:
             self.manager.is_running = False
@@ -40,15 +35,7 @@ class MainState(BaseState, state_name=WorldEnum.MAIN):
 
     def process_update(self, dt: float) -> None:
         self.window.fill((50, 50, 50))
-
         esper.process(dt)
-
-        # self.handle_movement(dt)
-        # self.handle_grass()
-        # self.grass_group.draw(self.window, self.offset)
-
-        self.handle_fps()
-
         pygame.display.update()
 
 

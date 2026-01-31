@@ -33,6 +33,7 @@ class ProcessorPriority(IntEnum):
     #   v
     # Highest
 
+    FPS_HANDLE = auto()
     ADD_GRASS = auto()
     MOVEMENT = auto()
     RENDER = auto()

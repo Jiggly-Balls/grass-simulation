@@ -22,6 +22,7 @@ from ecs.components import Renderable, Transform
 
 if TYPE_CHECKING:
     from pygame import Surface, Vector2
+    from pygame.font import Font
     from pygame.time import Clock
 
 
@@ -160,3 +161,15 @@ class RenderProcess(BaseProcessor):
             # )
 
         self.window.blits(blit_data)
+
+
+class FPSHandleProcessor(BaseProcessor):
+    priority: int = int(ProcessorPriority.FPS_HANDLE)
+
+    def __init__(self) -> None:
+        self.font: Font = pygame.font.SysFont("Arial", 24)
+
+    def process(self, dt: float) -> None:
+        fps = self.clock.get_fps()
+        fps_text = self.font.render(f"FPS: {int(fps)}", False, (255, 255, 255))
+        self.window.blit(fps_text, (10, 10))
