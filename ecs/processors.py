@@ -15,7 +15,6 @@ from data.constants import (
     GRASS_SPACING,
     GRASS_SPRITE_SHEET,
     SPEED,
-    TILE_SIZE,
     ProcessorPriority,
 )
 from ecs.components import Renderable, Transform
@@ -28,6 +27,8 @@ if TYPE_CHECKING:
 
 class BaseProcessor(Processor, ABC):
     cls_processors: list[type[BaseProcessor]] = []
+
+    tile_size: int = 32
 
     window: Surface = MISSING
     clock: Clock = MISSING
@@ -87,11 +88,17 @@ class AddGrassProcess(BaseProcessor):
 
             brush_vectors: list[Vector2] = [current_vec]
             for _ in range(GRASS_ABUNDANCE - 1):
-                x_start = int(current_vec.x - current_vec.x % TILE_SIZE)
-                y_start = int(current_vec.y - current_vec.y % TILE_SIZE)
+                x_start = int(current_vec.x - current_vec.x % self.tile_size)
+                y_start = int(current_vec.y - current_vec.y % self.tile_size)
 
-                x_pos = random.randint(x_start, x_start + TILE_SIZE)
-                y_pos = random.randint(y_start, y_start + TILE_SIZE)
+                x_pos = (
+                    random.randint(x_start, x_start + self.tile_size)
+                    - self.tile_size // 2
+                )
+                y_pos = (
+                    random.randint(y_start, y_start + self.tile_size)
+                    - self.tile_size // 2
+                )
 
                 new_grass = pygame.Vector2(x_pos, y_pos)
                 brush_vectors.append(new_grass)
@@ -135,7 +142,7 @@ class AddGrassProcess(BaseProcessor):
                         Transform(position=brush_vector),
                     )
                     self.grass += 1
-                    print(f"CREATED {self.grass} GRASS")
+                    print(f"CREATED {self.grass} GRASS BLADES")
 
                     # sorted_sprites = sorted(
                     #     self.grass_group.spritedict.items(),
@@ -160,7 +167,24 @@ class RenderProcess(BaseProcessor):
             #     renderable.image, transform.position + MovementProcess.offset
             # )
 
+        clicking = pygame.mouse.get_pressed()[0]
+
         self.window.blits(blit_data)
+        pygame.draw.circle(
+            self.window,
+            (255, 255, 255),
+            pygame.mouse.get_pos(),
+            (self.tile_size / 2) - int(clicking) * 2,
+            2 if not clicking else 0,
+        )
+        if clicking:
+            pygame.draw.circle(
+                self.window,
+                (255, 255, 255),
+                pygame.mouse.get_pos(),
+                self.tile_size,
+                1,
+            )
 
 
 class FPSHandleProcessor(BaseProcessor):

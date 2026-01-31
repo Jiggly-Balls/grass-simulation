@@ -7,6 +7,7 @@ import pygame
 from game_state.utils import StateArgs
 
 from data.constants import WorldEnum
+from ecs.processors import BaseProcessor
 from states.base_state import BaseState
 
 if TYPE_CHECKING:
@@ -29,9 +30,9 @@ class MainState(BaseState, state_name=WorldEnum.MAIN):
         if event.type == pygame.QUIT:
             self.manager.is_running = False
 
-        # elif event.type == pygame.MOUSEBUTTONDOWN:
-        #     if event.button == 1:
-        #         # print(event.pos)
+        elif event.type == pygame.MOUSEWHEEL:
+            BaseProcessor.tile_size += event.y * 3
+            BaseProcessor.tile_size = max(BaseProcessor.tile_size, 1)
 
     def process_update(self, dt: float) -> None:
         self.window.fill((50, 50, 50))
