@@ -15,12 +15,12 @@ __all__ = ("get_sprite_sheet",)
 
 @functools.lru_cache()
 def get_sprite_sheet(path: str) -> list[Surface]:
-    sprite_sheet = pygame.image.load(path).convert_alpha()
+    sprite_sheet = pygame.image.load(path).convert()
     total_frames = sprite_sheet.get_size()[0] // TILE_SIZE
     images: list[Surface] = []
 
     for offset in range(total_frames):
-        surf = pygame.Surface((TILE_SIZE, TILE_SIZE)).convert_alpha()
+        surf = pygame.Surface((TILE_SIZE, TILE_SIZE)).convert()
         total_offset = offset * TILE_SIZE
         surf.blit(
             sprite_sheet,
