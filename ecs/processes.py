@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, final
 
 import esper
@@ -20,18 +21,26 @@ if TYPE_CHECKING:
     from pygame import Surface, Vector2
 
 
+class BaseProcessor(Processor, ABC):
+    cls_processors: list[type[BaseProcessor]] = []
+
+    def __init_subclass__(cls) -> None:
+        BaseProcessor.cls_processors.append(cls)
+
+    @abstractmethod
+    def process(self, window: Surface, dt: float) -> None: ...
+
+
 @final
-class MovementProcess(Processor):
+class MovementProcess(BaseProcessor):
     priority: int = int(ProcessorPriority.MOVEMENT)
     offset: Vector2 = pygame.Vector2()
 
     def __init__(self) -> None:
         self.direction: Vector2 = pygame.Vector2()
 
-    def update(self, dt: float) -> None:
+    def process(self, window: Surface, dt: float) -> None:
         key_pressed = pygame.key.get_pressed()
-
-        # for _, (_, transform) in esper.get_components(Renderable, Transform):
 
         if key_pressed[pygame.K_w]:
             self.direction.y = 1
@@ -54,14 +63,14 @@ class MovementProcess(Processor):
 
 
 @final
-class AddGrassProcess(Processor):
+class AddGrassProcess(BaseProcessor):
     priority: int = int(ProcessorPriority.ADD_GRASS)
 
     def __init__(self) -> None:
         self.grass_vecs: list[Vector2] = []
         self.grass = 0
 
-    def update(self) -> None:
+    def process(self, window: Surface, dt: float) -> None:
         mouse_button_state = pygame.mouse.get_pressed()
         if mouse_button_state[0]:
             mouse_pos = pygame.mouse.get_pos()
@@ -116,10 +125,10 @@ class AddGrassProcess(Processor):
                     # self.grass_group.spritedict = dict(sorted_sprites)
 
 
-class RenderProcess(Processor):
+class RenderProcess(BaseProcessor):
     priority: int = int(ProcessorPriority.RENDER)
 
-    def update(self, window: Surface) -> None:
+    def process(self, window: Surface, dt: float) -> None:
         for _, (renderable, transform) in esper.get_components(
             Renderable, Transform
         ):
