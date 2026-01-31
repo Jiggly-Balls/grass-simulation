@@ -26,6 +26,9 @@ def main() -> None:
     manager.connect_state_hook("states.main_state", clock=clock)
     manager.change_state(state_name=WorldEnum.MAIN)
 
+    BaseProcessor.window = window
+    BaseProcessor.clock = clock
+
     esper.switch_world(WorldEnum.MAIN)
     for processor in BaseProcessor.cls_processors:
         esper.add_processor(processor_instance=processor())

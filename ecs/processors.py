@@ -7,28 +7,35 @@ from typing import TYPE_CHECKING, final
 import esper
 import pygame
 from esper import Processor
+from game_state.utils import MISSING
 
 from core.utils import get_sprite_sheet
 from data.constants import (
+    GRASS_ABUNDANCE,
     GRASS_SPACING,
     GRASS_SPRITE_SHEET,
     SPEED,
+    TILE_SIZE,
     ProcessorPriority,
 )
 from ecs.components import Renderable, Transform
 
 if TYPE_CHECKING:
     from pygame import Surface, Vector2
+    from pygame.time import Clock
 
 
 class BaseProcessor(Processor, ABC):
     cls_processors: list[type[BaseProcessor]] = []
 
+    window: Surface = MISSING
+    clock: Clock = MISSING
+
     def __init_subclass__(cls) -> None:
         BaseProcessor.cls_processors.append(cls)
 
     @abstractmethod
-    def process(self, window: Surface, dt: float) -> None: ...
+    def process(self, dt: float) -> None: ...
 
 
 @final
@@ -39,7 +46,7 @@ class MovementProcess(BaseProcessor):
     def __init__(self) -> None:
         self.direction: Vector2 = pygame.Vector2()
 
-    def process(self, window: Surface, dt: float) -> None:
+    def process(self, dt: float) -> None:
         key_pressed = pygame.key.get_pressed()
 
         if key_pressed[pygame.K_w]:
@@ -70,27 +77,38 @@ class AddGrassProcess(BaseProcessor):
         self.grass_vecs: list[Vector2] = []
         self.grass = 0
 
-    def process(self, window: Surface, dt: float) -> None:
+    def process(self, dt: float) -> None:
         mouse_button_state = pygame.mouse.get_pressed()
         if mouse_button_state[0]:
             mouse_pos = pygame.mouse.get_pos()
             current_vec = pygame.Vector2(*mouse_pos) - MovementProcess.offset
             # self.handle_grass_expansion(current_vec)
 
+            brush_vectors: list[Vector2] = [current_vec]
+            for _ in range(GRASS_ABUNDANCE - 1):
+                x_start = int(current_vec.x - current_vec.x % TILE_SIZE)
+                y_start = int(current_vec.y - current_vec.y % TILE_SIZE)
+
+                x_pos = random.randint(x_start, x_start + TILE_SIZE)
+                y_pos = random.randint(y_start, y_start + TILE_SIZE)
+
+                new_grass = pygame.Vector2(x_pos, y_pos)
+                brush_vectors.append(new_grass)
+
             # 3x3 brush
-            brush_vectors = [current_vec.copy() for _ in range(9)]
-            brush_vectors[1].x += GRASS_SPACING
-            brush_vectors[2].x += GRASS_SPACING * 2
-            brush_vectors[3].y += GRASS_SPACING
-            brush_vectors[4].x += GRASS_SPACING
-            brush_vectors[4].y += GRASS_SPACING
-            brush_vectors[5].x += GRASS_SPACING * 2
-            brush_vectors[5].y += GRASS_SPACING
-            brush_vectors[6].y += GRASS_SPACING * 2
-            brush_vectors[7].x += GRASS_SPACING
-            brush_vectors[7].y += GRASS_SPACING * 2
-            brush_vectors[8].x += GRASS_SPACING * 2
-            brush_vectors[8].y += GRASS_SPACING * 2
+            # brush_vectors = [current_vec.copy() for _ in range(9)]
+            # brush_vectors[1].x += GRASS_SPACING
+            # brush_vectors[2].x += GRASS_SPACING * 2
+            # brush_vectors[3].y += GRASS_SPACING
+            # brush_vectors[4].x += GRASS_SPACING
+            # brush_vectors[4].y += GRASS_SPACING
+            # brush_vectors[5].x += GRASS_SPACING * 2
+            # brush_vectors[5].y += GRASS_SPACING
+            # brush_vectors[6].y += GRASS_SPACING * 2
+            # brush_vectors[7].x += GRASS_SPACING
+            # brush_vectors[7].y += GRASS_SPACING * 2
+            # brush_vectors[8].x += GRASS_SPACING * 2
+            # brush_vectors[8].y += GRASS_SPACING * 2
 
             for brush_vector in brush_vectors:
                 if all(
@@ -128,10 +146,17 @@ class AddGrassProcess(BaseProcessor):
 class RenderProcess(BaseProcessor):
     priority: int = int(ProcessorPriority.RENDER)
 
-    def process(self, window: Surface, dt: float) -> None:
+    def process(self, dt: float) -> None:
+        blit_data: list[tuple[Surface, Vector2]] = []
         for _, (renderable, transform) in esper.get_components(
             Renderable, Transform
         ):
-            window.blit(
-                renderable.image, transform.position + MovementProcess.offset
+            blit_data.append(
+                (renderable.image, transform.position + MovementProcess.offset)
             )
+
+            # self.window.blit(
+            #     renderable.image, transform.position + MovementProcess.offset
+            # )
+
+        self.window.blits(blit_data)

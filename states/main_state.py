@@ -41,7 +41,7 @@ class MainState(BaseState, state_name=WorldEnum.MAIN):
     def process_update(self, dt: float) -> None:
         self.window.fill((50, 50, 50))
 
-        esper.process(self.window, dt)
+        esper.process(dt)
 
         # self.handle_movement(dt)
         # self.handle_grass()
