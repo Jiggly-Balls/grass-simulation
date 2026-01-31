@@ -3,6 +3,7 @@ from __future__ import annotations
 import random
 from typing import TYPE_CHECKING
 
+import esper
 import pygame
 from game_state.utils import StateArgs
 
@@ -135,9 +136,7 @@ class MainState(BaseState, state_name=WorldEnum.MAIN):
     def process_update(self, dt: float) -> None:
         self.window.fill((50, 50, 50))
 
-        self.process_movement.update(dt)
-        self.process_add_grass.update()
-        self.process_render.update(self.window)
+        esper.process(self.window, dt)
 
         # self.handle_movement(dt)
         # self.handle_grass()
