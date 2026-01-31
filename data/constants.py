@@ -26,6 +26,12 @@ class WorldEnum(StrEnum):
 
 
 class ProcessorPriority(IntEnum):
-    ADD_GRASS = 0
-    MOVEMENT = 1
-    RENDER = 2
+    # Lowest
+    #   |
+    #   |
+    #   v
+    # Highest
+
+    ADD_GRASS = auto()
+    MOVEMENT = auto()
+    RENDER = auto()
