@@ -12,7 +12,8 @@ __all__ = (
 )
 
 FPS: int = 60
-TILE_SIZE: int = 32
+TILE_SIZE: int = 64
+GRASS_ABUNDANCE: int = 10
 SCREEN_RESOLUTION: tuple[int, int] = (1000, 600)
 SPEED: int = 500
 
