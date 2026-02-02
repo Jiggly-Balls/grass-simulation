@@ -31,7 +31,7 @@ class MainState(BaseState, state_name=WorldEnum.MAIN):
             self.manager.is_running = False
 
         elif event.type == pygame.MOUSEWHEEL:
-            BaseProcessor.tile_size += event.y * 3
+            BaseProcessor.tile_size += event.y * 10
             BaseProcessor.tile_size = max(BaseProcessor.tile_size, 1)
 
     def process_update(self, dt: float) -> None:
