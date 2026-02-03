@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-import esper
 import pygame
 from game_state import StateManager
 
 from data.constants import FPS, SCREEN_RESOLUTION, WorldEnum
-from ecs.processors import BaseProcessor
-from states.base_state import BaseState
+from demo import BaseState, MainGame
 
 __version__ = "0.1.0"
 
@@ -19,19 +17,15 @@ def main() -> None:
     window = pygame.display.set_mode(SCREEN_RESOLUTION)
     clock = pygame.time.Clock()
 
+    BaseState.window = window
+    BaseState.clock = clock
+
     manager = StateManager[BaseState](
         bound_state_type=BaseState,
         window=window,
     )
-    manager.connect_state_hook("states.main_state", clock=clock)
-    manager.change_state(state_name=WorldEnum.MAIN)
-
-    BaseProcessor.window = window
-    BaseProcessor.clock = clock
-
-    esper.switch_world(WorldEnum.MAIN)
-    for processor in BaseProcessor.cls_processors:
-        esper.add_processor(processor_instance=processor())
+    manager.load_states(MainGame)
+    manager.change_state(state_name=WorldEnum.MAIN_GAME)
 
     assert manager.current_state is not None
 
