@@ -5,30 +5,28 @@ from typing import TYPE_CHECKING
 
 import pygame
 
-from data.constants import SPRITE_TILE_SIZE
-
 if TYPE_CHECKING:
     from pygame import Surface
 
 __all__ = ("get_sprite_sheet",)
 
 
-@functools.lru_cache()
-def get_sprite_sheet(path: str) -> list[Surface]:
+@functools.cache
+def get_sprite_sheet(path: str, tile_size: int) -> list[Surface]:
     sprite_sheet = pygame.image.load(path).convert()
-    total_frames = sprite_sheet.get_size()[0] // SPRITE_TILE_SIZE
+    total_frames = sprite_sheet.get_size()[0] // tile_size
     images: list[Surface] = []
 
     for offset in range(total_frames):
-        surf = pygame.Surface((SPRITE_TILE_SIZE, SPRITE_TILE_SIZE)).convert()
-        total_offset = offset * SPRITE_TILE_SIZE
+        surf = pygame.Surface((tile_size, tile_size)).convert()
+        total_offset = offset * tile_size
         surf.blit(
             sprite_sheet,
             area=(
                 0 + total_offset,
                 0,
-                SPRITE_TILE_SIZE + total_offset,
-                SPRITE_TILE_SIZE + total_offset,
+                tile_size + total_offset,
+                tile_size + total_offset,
             ),
         )
         surf.set_colorkey((0, 0, 0))
