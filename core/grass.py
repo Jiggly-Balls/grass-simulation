@@ -5,7 +5,7 @@ import random
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Generator, Sequence
 
     from pygame import Surface, Vector2
 
@@ -44,7 +44,7 @@ class GrassManager[G: str | int]:
         )
 
     def draw(self, surface: Surface, offset: Vector2) -> None:
-        data = (
+        data: Generator[tuple[Surface, Vector2], None, None] = (
             (self.grass_objects[sprite.image_id], sprite.position + offset)
             for sprite in self.sprites
         )
