@@ -7,7 +7,9 @@ import pygame
 from game_state import State
 from game_state.utils import MISSING
 
-from data.constants import WorldEnum
+from core.grass import GrassManager
+from core.utils import get_sprite_sheet
+from data.constants import GRASS_SPRITE_SHEET, SPRITE_TILE_SIZE, WorldEnum
 
 if TYPE_CHECKING:
     from pygame import Clock, Event, Font, Surface, Vector2
@@ -27,9 +29,18 @@ class BaseState(State["BaseState"], ABC):
 class MainGame(BaseState, state_name=WorldEnum.MAIN_GAME):
     def __init__(self) -> None:
         self.font: Font = pygame.font.SysFont("Arial", 24)
-
         self.offset: Vector2 = pygame.Vector2()
         self.direction: Vector2 = pygame.Vector2()
+
+        grass_sprites: list[Surface] = get_sprite_sheet(
+            path=GRASS_SPRITE_SHEET, tile_size=SPRITE_TILE_SIZE
+        )
+        grass_id_map: dict[int, Surface] = {
+            id: surf for id, surf in enumerate(grass_sprites)
+        }
+
+        self.grass_manager: GrassManager[int] = GrassManager(grass_id_map)
+
         self.speed: int = 500
         self.tile_size: int = 30
 
@@ -44,10 +55,18 @@ class MainGame(BaseState, state_name=WorldEnum.MAIN_GAME):
     def process_update(self, dt: float) -> None:
         self.window.fill((50, 50, 50))
 
+        self.handle_add_grass()
+        self.grass_manager.draw(self.window, self.offset)
         self.handle_movement(dt)
         self.handle_fps()
 
         pygame.display.update()
+
+    def handle_add_grass(self) -> None:
+        clicking = pygame.mouse.get_pressed()[0]
+        if clicking:
+            mouse_pos = pygame.Vector2(pygame.mouse.get_pos())
+            self.grass_manager.add(mouse_pos - self.offset)
 
     def handle_movement(self, dt: float) -> None:
         key_pressed = pygame.key.get_pressed()
