@@ -4,7 +4,6 @@ from enum import StrEnum, auto
 
 __all__ = (
     "FPS",
-    "SPRITE_TILE_SIZE",
     "SCREEN_RESOLUTION",
     "BASE_ASSET_PATH",
     "GRASS_SPRITE_SHEET",
@@ -12,7 +11,6 @@ __all__ = (
 )
 
 FPS: int = 60
-SPRITE_TILE_SIZE: int = 32
 GRASS_ABUNDANCE: int = 200
 SCREEN_RESOLUTION: tuple[int, int] = (1000, 600)
 SPEED: int = 500
