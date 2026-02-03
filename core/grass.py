@@ -21,12 +21,16 @@ class GrassSprite[G: str | int]:
 
 
 class GrassManager[G: str | int]:
-    def __init__(self, grass_objects: dict[G, Surface]) -> None:
+    def __init__(self, grass_objects: dict[G, Surface], gap: int = 10) -> None:
         self.grass_objects: dict[G, Surface] = grass_objects
         self.sprites: list[GrassSprite[G]] = []
+        self.gap: int = gap
 
     def add(
-        self, position: Vector2, grass_variants: None | Sequence[G] = None
+        self,
+        position: Vector2,
+        tile_size: tuple[int, int] = (1, 1),
+        grass_variants: None | Sequence[G] = None,
     ) -> None:
         if grass_variants is None:
             grass_id = random.choice(tuple(self.grass_objects.keys()))
