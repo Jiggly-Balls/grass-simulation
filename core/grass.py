@@ -45,6 +45,7 @@ class GrassManager[G: str | int]:
             GrassSprite(grass_id, position),
             key=lambda grass_sprite: grass_sprite.position.y,
         )
+        print(f"PLACED {len(self.sprites)} GRASS BLADES")
 
     def draw(self, surface: Surface, offset: Vector2) -> None:
         data: Generator[tuple[Surface, Vector2], None, None] = (
