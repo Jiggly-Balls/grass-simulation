@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from enum import IntEnum, StrEnum, auto
+from enum import StrEnum, auto
 
 __all__ = (
     "FPS",
@@ -23,17 +23,4 @@ GRASS_SPACING: int = 15
 
 
 class WorldEnum(StrEnum):
-    MAIN = auto()
-
-
-class ProcessorPriority(IntEnum):
-    # Lowest
-    #   |
-    #   |
-    #   v
-    # Highest
-
-    FPS_HANDLE = auto()
-    ADD_GRASS = auto()
-    MOVEMENT = auto()
-    RENDER = auto()
+    MAIN_GAME = auto()
