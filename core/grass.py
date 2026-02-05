@@ -24,7 +24,7 @@ class GrassSprite[G: str | int]:
 
 
 class GrassManager[G: str | int]:
-    def __init__(self, grass_objects: dict[G, Surface], gap: int = 15) -> None:
+    def __init__(self, grass_objects: dict[G, Surface], gap: int = 17) -> None:
         if gap < 0:
             raise ValueError(
                 f"Expected `gap` argument to be a positive value. Instead got {gap=}"
