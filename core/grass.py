@@ -33,6 +33,7 @@ class GrassManager[G: str | int]:
         self.grass_objects: dict[G, Surface] = grass_objects
         self.sprites: list[GrassSprite[G]] = []
         self._gap: int = gap
+        self._gap_squared: int = self._gap**2
         self._spatial_grid: dict[tuple[int, int], list[Vector2]] = defaultdict(
             list
         )
@@ -56,8 +57,7 @@ class GrassManager[G: str | int]:
         )
         for grid_cell in self._get_boundaries(spatial_position):
             for vector in self._spatial_grid[grid_cell]:
-                if (position - vector).magnitude() < self._gap:
-                    print("COLLISION")
+                if (position - vector).length_squared() < self._gap_squared:
                     return
 
         if grass_variants is None:
@@ -70,9 +70,7 @@ class GrassManager[G: str | int]:
             GrassSprite(grass_id, position),
             key=lambda grass_sprite: grass_sprite.position.y,
         )
-        self._spatial_grid[
-            self._lock_grid((int(position.x), int(position.y)))
-        ].append(position)
+        self._spatial_grid[spatial_position].append(position)
 
         print(f"PLACED {len(self.sprites)} GRASS BLADES")
 
@@ -102,6 +100,9 @@ class GrassManager[G: str | int]:
         tuple[int, int],
         tuple[int, int],
     ]:
+        # I could've converted this into a loop but hardcoding it gives slightly better performance.
+        # Yes. I am micro optimizing. Deal with it.
+
         x, y = position
         # fmt: off
         grid = (
