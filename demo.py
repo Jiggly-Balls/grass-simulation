@@ -75,7 +75,7 @@ class MainGame(BaseState, state_name=WorldEnum.MAIN_GAME):
             self.grass_manager.add(
                 destination, (self.tile_size, self.tile_size)
             )
-    
+
     def handle_brush(self) -> None:
         clicking = pygame.mouse.get_pressed()[0]
 

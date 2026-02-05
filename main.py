@@ -6,7 +6,7 @@ from game_state import StateManager
 from data.constants import FPS, SCREEN_RESOLUTION, WorldEnum
 from demo import BaseState, MainGame
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"
 
 pygame.init()
 pygame.display.init()
