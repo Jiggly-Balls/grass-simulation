@@ -42,7 +42,7 @@ class MainGame(BaseState, state_name=WorldEnum.MAIN_GAME):
         self.grass_manager: GrassManager[int] = GrassManager(grass_id_map)
 
         self.speed: int = 500
-        self.tile_size: int = 30
+        self.tile_size: int = 200
 
     def process_event(self, event: Event) -> None:
         if event.type == pygame.QUIT:
@@ -66,7 +66,9 @@ class MainGame(BaseState, state_name=WorldEnum.MAIN_GAME):
         clicking = pygame.mouse.get_pressed()[0]
         if clicking:
             mouse_pos = pygame.Vector2(pygame.mouse.get_pos())
-            self.grass_manager.add(mouse_pos - self.offset)
+            self.grass_manager.add(
+                mouse_pos - self.offset, (self.tile_size, self.tile_size)
+            )
 
     def handle_movement(self, dt: float) -> None:
         key_pressed = pygame.key.get_pressed()
