@@ -38,6 +38,8 @@ class MainGame(BaseState, state_name=WorldEnum.MAIN_GAME):
         grass_id_map: dict[int, Surface] = {
             id: surf for id, surf in enumerate(grass_sprites)
         }
+        self.sprite_width: int = grass_sprites[0].get_width()
+        self.sprite_height: int = grass_sprites[0].get_height()
 
         self.grass_manager: GrassManager[int] = GrassManager(grass_id_map)
 
@@ -66,8 +68,11 @@ class MainGame(BaseState, state_name=WorldEnum.MAIN_GAME):
         clicking = pygame.mouse.get_pressed()[0]
         if clicking:
             mouse_pos = pygame.Vector2(pygame.mouse.get_pos())
+            destination = mouse_pos - self.offset
+            destination.x -= self.sprite_width
+            destination.y -= self.sprite_height
             self.grass_manager.add(
-                mouse_pos - self.offset, (self.tile_size, self.tile_size)
+                destination, (self.tile_size, self.tile_size)
             )
 
     def handle_movement(self, dt: float) -> None:
