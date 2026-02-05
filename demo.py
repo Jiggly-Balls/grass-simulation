@@ -51,14 +51,15 @@ class MainGame(BaseState, state_name=WorldEnum.MAIN_GAME):
             self.manager.is_running = False
 
         elif event.type == pygame.MOUSEWHEEL:
-            self.tile_size += event.y * 10
-            self.tile_size = max(self.tile_size, 1)
+            self.tile_size += event.y
+            self.tile_size = min(max(self.tile_size, 1), 5)
 
     def process_update(self, dt: float) -> None:
         self.window.fill((50, 50, 50))
 
         self.handle_add_grass()
         self.grass_manager.draw(self.window, self.offset)
+        self.handle_brush()
         self.handle_movement(dt)
         self.handle_fps()
 
@@ -73,6 +74,25 @@ class MainGame(BaseState, state_name=WorldEnum.MAIN_GAME):
             destination.y -= self.sprite_height
             self.grass_manager.add(
                 destination, (self.tile_size, self.tile_size)
+            )
+    
+    def handle_brush(self) -> None:
+        clicking = pygame.mouse.get_pressed()[0]
+
+        pygame.draw.circle(
+            self.window,
+            (255, 255, 255),
+            pygame.mouse.get_pos(),
+            ((self.tile_size / 2) - int(clicking)) * 15,
+            2 if not clicking else 0,
+        )
+        if clicking:
+            pygame.draw.circle(
+                self.window,
+                (255, 255, 255),
+                pygame.mouse.get_pos(),
+                self.tile_size * 15,
+                1,
             )
 
     def handle_movement(self, dt: float) -> None:
