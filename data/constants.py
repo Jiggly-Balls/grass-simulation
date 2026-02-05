@@ -11,7 +11,7 @@ __all__ = (
     "GRASS_SPACING",
 )
 
-FPS: int = 60
+FPS: int = 120
 SPRITE_TILE_SIZE: int = 32
 GRASS_ABUNDANCE: int = 200
 SCREEN_RESOLUTION: tuple[int, int] = (1000, 600)
