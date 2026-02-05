@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import bisect
 import random
+from collections import defaultdict
 from typing import TYPE_CHECKING
 
 import pygame
@@ -32,7 +33,9 @@ class GrassManager[G: str | int]:
         self.grass_objects: dict[G, Surface] = grass_objects
         self.sprites: list[GrassSprite[G]] = []
         self._gap: int = gap
-        self._gap_records: set[tuple[int, int]] = set[tuple[int, int]]()
+        self._spatial_grid: dict[tuple[int, int], list[Vector2]] = defaultdict(
+            list
+        )
 
         print(self._gap)
 
@@ -43,14 +46,19 @@ class GrassManager[G: str | int]:
         grass_variants: None | Sequence[G] = None,
     ) -> None:
         if tile_size != (1, 1):
-            for x in range(tile_size[0]):
-                for y in range(tile_size[1]):
+            for x in range(0, tile_size[0] * self._gap, self._gap):
+                for y in range(0, tile_size[1] * self._gap, self._gap):
                     vec = pygame.Vector2(position.x + x, position.y + y)
                     self.add(vec)
 
-        gap_grid = self._lock_grid((int(position.x), int(position.y)))
-        if gap_grid in self._gap_records:
-            return
+        spatial_position: tuple[int, int] = self._lock_grid(
+            (int(position.x), int(position.y))
+        )
+        for grid_cell in self._get_boundaries(spatial_position):
+            for vector in self._spatial_grid[grid_cell]:
+                if (position - vector).magnitude() < self._gap:
+                    print("LOCATED")
+                    return
 
         if grass_variants is None:
             grass_id = random.choice(tuple(self.grass_objects.keys()))
@@ -63,7 +71,9 @@ class GrassManager[G: str | int]:
             key=lambda grass_sprite: grass_sprite.position.y,
         )
 
-        self._gap_records.add(gap_grid)
+        self._spatial_grid[
+            self._lock_grid((int(position.x), int(position.y)))
+        ].append(position)
 
         print(f"PLACED {len(self.sprites)} GRASS BLADES")
 
@@ -79,3 +89,26 @@ class GrassManager[G: str | int]:
             round(pos[0] / self._gap) * self._gap,
             round(pos[1] / self._gap) * self._gap,
         )
+
+    def _get_boundaries(
+        self, position: tuple[int, int]
+    ) -> tuple[
+        tuple[int, int],
+        tuple[int, int],
+        tuple[int, int],
+        tuple[int, int],
+        tuple[int, int],
+        tuple[int, int],
+        tuple[int, int],
+        tuple[int, int],
+    ]:
+        x, y = position
+        # fmt: off
+        grid = (
+            self._lock_grid((x - 1, y + 1)), self._lock_grid((x, y + 1)), self._lock_grid((x + 1, y + 1)),
+            self._lock_grid((x - 1, y    )),                                  self._lock_grid((x + 1, y    )),
+            self._lock_grid((x - 1, y - 1)), self._lock_grid((x, y - 1)), self._lock_grid((x + 1, y - 1)),
+        )
+        # fmt: on
+
+        return grid
