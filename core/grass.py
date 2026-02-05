@@ -100,13 +100,14 @@ class GrassManager[G: str | int]:
         tuple[int, int],
         tuple[int, int],
         tuple[int, int],
+        tuple[int, int],
     ]:
         x, y = position
         # fmt: off
         grid = (
-            self._lock_grid((x - 1, y + 1)), self._lock_grid((x, y + 1)), self._lock_grid((x + 1, y + 1)),
-            self._lock_grid((x - 1, y    )),                                  self._lock_grid((x + 1, y    )),
-            self._lock_grid((x - 1, y - 1)), self._lock_grid((x, y - 1)), self._lock_grid((x + 1, y - 1)),
+            ((x - 1) * self._gap, (y + 1) * self._gap), (x * self._gap, (y + 1) * self._gap), ((x + 1) * self._gap, (y + 1) * self._gap),
+            ((x - 1) * self._gap, (y    ) * self._gap), (x            , (y    )            ), ((x + 1) * self._gap, (y    ) * self._gap),
+            ((x - 1) * self._gap, (y - 1) * self._gap), (x * self._gap, (y - 1) * self._gap), ((x + 1) * self._gap, (y - 1) * self._gap),
         )
         # fmt: on
 
