@@ -41,7 +41,9 @@ class MainGame(BaseState, state_name=WorldEnum.MAIN_GAME):
         self.sprite_width: int = grass_sprites[0].get_width()
         self.sprite_height: int = grass_sprites[0].get_height()
 
-        self.grass_manager: GrassManager[int] = GrassManager(grass_id_map)
+        self.grass_manager: GrassManager[int] = GrassManager(
+            grass_id_map, self.window.get_width(), self.window.get_height()
+        )
 
         self.speed: int = 500
         self.tile_size: int = 3
@@ -72,9 +74,11 @@ class MainGame(BaseState, state_name=WorldEnum.MAIN_GAME):
             destination = mouse_pos - self.offset
             destination.x -= self.sprite_width
             destination.y -= self.sprite_height
-            self.grass_manager.add(
-                destination, (self.tile_size, self.tile_size)
-            )
+            # self.grass_manager.add(
+            #     destination, (self.tile_size, self.tile_size)
+            # )
+
+            self.grass_manager.add_grass(destination)
 
     def handle_brush(self) -> None:
         clicking = pygame.mouse.get_pressed()[0]

@@ -6,6 +6,8 @@ from collections import defaultdict
 from typing import TYPE_CHECKING
 
 import pygame
+from pygame.math import Vector2
+from pygame.surface import Surface
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
@@ -24,21 +26,81 @@ class GrassSprite[G: str | int]:
 
 
 class GrassManager[G: str | int]:
-    def __init__(self, grass_objects: dict[G, Surface], gap: int = 17) -> None:
+    def __init__(
+        self,
+        grass_objects: dict[G, Surface],
+        camera_width: int,
+        camera_height: int,
+        gap: int = 17,
+    ) -> None:
         if gap < 0:
             raise ValueError(
                 f"Expected `gap` argument to be a positive value. Instead got {gap=}"
             )
 
         self.grass_objects: dict[G, Surface] = grass_objects
+        self.camera_width: int = camera_width
+        self.camera_height: int = camera_height
         self.sprites: list[GrassSprite[G]] = []
+
         self._gap: int = gap
         self._gap_squared: int = self._gap**2
         self._spatial_grid: dict[tuple[int, int], list[Vector2]] = defaultdict(
             list
         )
+        self._grass: defaultdict[tuple[int, int], set[GrassSprite[G]]] = (
+            defaultdict(set)
+        )
 
         print(self._gap)
+
+    def add_grass(
+        self, position: Vector2, grass_variants: None | Sequence[G] = None
+    ) -> None:
+        """
+        adds a blade of grass
+        """
+        if grass_variants is None:
+            grass_id = random.choice(tuple(self.grass_objects.keys()))
+        else:
+            grass_id = random.choice(grass_variants)
+
+        key = (
+            int(position.x // self.camera_width),
+            int(position.y // self.camera_height),
+        )
+        grass = GrassSprite(image_id=grass_id, position=position)
+        self._grass[key].add(grass)
+
+    def get_grass(
+        self, camera_pos: Vector2
+    ) -> Generator[tuple[Surface, Vector2], None, None]:
+        # returns list of all grass from (camera_x, camera_y) to (camera_x + view_length, camera_y + view_height)
+        """
+        returns iterator of all grass from (camera_x, camera_y) to (camera_x + view_width - 1, camera_y + view_width - 1)
+        """
+        (key_x, key_y) = (
+            int(camera_pos.x // self.camera_width),
+            int(camera_pos.y // self.camera_height),
+        )
+        x_min, x_max = (
+            int(camera_pos.x),
+            int(camera_pos.x + self.camera_width - 1),
+        )
+        y_min, y_max = (
+            int(camera_pos.y),
+            int(camera_pos.y + self.camera_height - 1),
+        )
+
+        return (
+            (self.grass_objects[sprite.image_id], sprite.position + camera_pos)
+            for kx in (key_x, key_x + 1)
+            for ky in (key_y, key_y + 1)
+            if (kx, ky) in self._grass
+            for sprite in self._grass[(kx, ky)]
+            if x_min <= sprite.position.x <= x_max
+            and y_min <= sprite.position.y <= y_max
+        )
 
     def add(
         self,
@@ -75,10 +137,13 @@ class GrassManager[G: str | int]:
         print(f"PLACED {len(self.sprites)} GRASS BLADES")
 
     def draw(self, surface: Surface, offset: Vector2) -> None:
-        data: Generator[tuple[Surface, Vector2], None, None] = (
-            (self.grass_objects[sprite.image_id], sprite.position + offset)
-            for sprite in self.sprites
-        )
+        # data: Generator[tuple[Surface, Vector2], None, None] = (
+        #     (self.grass_objects[sprite.image_id], sprite.position + offset)
+        #     for sprite in self.sprites
+        # )
+
+        data = self.get_grass(offset)
+
         surface.blits(data)
 
     def _lock_grid(self, pos: tuple[int, int]) -> tuple[int, int]:
