@@ -29,7 +29,7 @@ class BaseState(State["BaseState"], ABC):
 class MainGame(BaseState, state_name=WorldEnum.MAIN_GAME):
     def __init__(self) -> None:
         self.font: Font = pygame.font.SysFont("Arial", 24)
-        self.offset: Vector2 = pygame.Vector2()
+        self.camera: Vector2 = pygame.Vector2()
         self.direction: Vector2 = pygame.Vector2()
 
         grass_sprites: list[Surface] = get_sprite_sheet(
@@ -42,7 +42,9 @@ class MainGame(BaseState, state_name=WorldEnum.MAIN_GAME):
         self.sprite_height: int = grass_sprites[0].get_height()
 
         self.grass_manager: GrassManager[int] = GrassManager(
-            grass_id_map, self.window.get_width(), self.window.get_height()
+            grass_id_map,
+            self.window.get_width() * 2,
+            self.window.get_height() * 2,
         )
 
         self.speed: int = 500
@@ -58,9 +60,9 @@ class MainGame(BaseState, state_name=WorldEnum.MAIN_GAME):
 
     def process_update(self, dt: float) -> None:
         self.window.fill((50, 50, 50))
-
+        print(self.camera)
         self.handle_add_grass()
-        self.grass_manager.draw(self.window, self.offset)
+        self.grass_manager.draw(self.window, self.camera)
         self.handle_brush()
         self.handle_movement(dt)
         self.handle_fps()
@@ -71,7 +73,7 @@ class MainGame(BaseState, state_name=WorldEnum.MAIN_GAME):
         clicking = pygame.mouse.get_pressed()[0]
         if clicking:
             mouse_pos = pygame.Vector2(pygame.mouse.get_pos())
-            destination = mouse_pos - self.offset
+            destination = mouse_pos + self.camera
             destination.x -= self.sprite_width
             destination.y -= self.sprite_height
             # self.grass_manager.add(
@@ -103,23 +105,23 @@ class MainGame(BaseState, state_name=WorldEnum.MAIN_GAME):
         key_pressed = pygame.key.get_pressed()
 
         if key_pressed[pygame.K_w]:
-            self.direction.y = 1
-        elif key_pressed[pygame.K_s]:
             self.direction.y = -1
+        elif key_pressed[pygame.K_s]:
+            self.direction.y = 1
         else:
             self.direction.y = 0
 
         if key_pressed[pygame.K_d]:
-            self.direction.x = -1
-        elif key_pressed[pygame.K_a]:
             self.direction.x = 1
+        elif key_pressed[pygame.K_a]:
+            self.direction.x = -1
         else:
             self.direction.x = 0
 
         if self.direction.magnitude() != 0.0:
             self.direction.normalize_ip()
 
-        self.offset += self.direction * self.speed * dt
+        self.camera += self.direction * self.speed * dt
 
     def handle_fps(self) -> None:
         fps = self.clock.get_fps()

@@ -23,6 +23,7 @@ class GrassSprite[G: str | int]:
     ) -> None:
         self.image_id: G = image_id
         self.position: Vector2 = position
+        print(self.position)
 
 
 class GrassManager[G: str | int]:
@@ -93,7 +94,7 @@ class GrassManager[G: str | int]:
         )
 
         return (
-            (self.grass_objects[sprite.image_id], sprite.position + camera_pos)
+            (self.grass_objects[sprite.image_id], sprite.position - camera_pos)
             for kx in (key_x, key_x + 1)
             for ky in (key_y, key_y + 1)
             if (kx, ky) in self._grass
@@ -134,15 +135,15 @@ class GrassManager[G: str | int]:
         )
         self._spatial_grid[spatial_position].append(position)
 
-        print(f"PLACED {len(self.sprites)} GRASS BLADES")
+        # print(f"PLACED {len(self.sprites)} GRASS BLADES")
 
-    def draw(self, surface: Surface, offset: Vector2) -> None:
+    def draw(self, surface: Surface, position: Vector2) -> None:
         # data: Generator[tuple[Surface, Vector2], None, None] = (
         #     (self.grass_objects[sprite.image_id], sprite.position + offset)
         #     for sprite in self.sprites
         # )
 
-        data = self.get_grass(offset)
+        data = self.get_grass(position)
 
         surface.blits(data)
 
