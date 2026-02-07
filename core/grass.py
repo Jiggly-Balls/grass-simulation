@@ -12,7 +12,7 @@ from pygame.surface import Surface
 if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
 
-    from pygame import Surface, Vector2
+    from pygame import FRect, Surface, Vector2
 
 
 class GrassSprite[G: str | int]:
@@ -39,9 +39,15 @@ class GrassManager[G: str | int]:
                 f"Expected `gap` argument to be a positive value. Instead got {gap=}"
             )
 
+        self.sprite_height: int = tuple(grass_objects.values())[0].get_height()
+        self.sprite_width: int = tuple(grass_objects.values())[0].get_width()
+        self.sprite_offset: Vector2 = pygame.Vector2(
+            self.sprite_width, self.sprite_height
+        )
+
         self.grass_objects: dict[G, Surface] = grass_objects
-        self.camera_width: int = camera_width
-        self.camera_height: int = camera_height
+        self.camera_width: int = camera_width + self.sprite_width
+        self.camera_height: int = camera_height + self.sprite_height
         self.sprites: list[GrassSprite[G]] = []
 
         self._gap: int = gap
@@ -73,13 +79,20 @@ class GrassManager[G: str | int]:
         grass = GrassSprite(image_id=grass_id, position=position)
         self._grass[key].add(grass)
 
+    def _cast_rect(self, anchor: str, position: Vector2) -> FRect:
+        frect = pygame.FRect()
+        setattr(frect, anchor, position)
+        return frect
+
     def get_grass(
         self, camera_pos: Vector2
-    ) -> Generator[tuple[Surface, Vector2], None, None]:
+    ) -> Generator[tuple[Surface, FRect], None, None]:
         # returns list of all grass from (camera_x, camera_y) to (camera_x + view_length, camera_y + view_height)
         """
         returns iterator of all grass from (camera_x, camera_y) to (camera_x + view_width - 1, camera_y + view_width - 1)
         """
+        # camera_pos -= self.sprite_offset
+
         (key_x, key_y) = (
             int(camera_pos.x // self.camera_width),
             int(camera_pos.y // self.camera_height),
@@ -94,7 +107,13 @@ class GrassManager[G: str | int]:
         )
 
         return (
-            (self.grass_objects[sprite.image_id], sprite.position - camera_pos)
+            (
+                self.grass_objects[sprite.image_id],
+                self._cast_rect(
+                    "topleft",
+                    sprite.position - camera_pos - self.sprite_offset,
+                ),
+            )
             for kx in (key_x, key_x + 1)
             for ky in (key_y, key_y + 1)
             if (kx, ky) in self._grass

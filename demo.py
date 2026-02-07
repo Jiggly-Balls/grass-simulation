@@ -43,8 +43,8 @@ class MainGame(BaseState, state_name=WorldEnum.MAIN_GAME):
 
         self.grass_manager: GrassManager[int] = GrassManager(
             grass_id_map,
-            self.window.get_width() * 2,
-            self.window.get_height() * 2,
+            self.window.get_width(),
+            self.window.get_height(),
         )
 
         self.speed: int = 500
