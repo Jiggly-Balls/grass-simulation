@@ -16,6 +16,8 @@ if TYPE_CHECKING:
 
 
 class GrassSprite[G: str | int]:
+    __slots__: tuple[str, ...] = ("image_id", "position")
+
     def __init__(
         self,
         image_id: G,
@@ -39,6 +41,7 @@ class GrassManager[G: str | int]:
                 f"Expected `gap` argument to be a positive value. Instead got {gap=}"
             )
 
+        self.sprite_ids: tuple[G, ...] = tuple(grass_objects.keys())
         self.sprite_height: int = tuple(grass_objects.values())[0].get_height()
         self.sprite_width: int = tuple(grass_objects.values())[0].get_width()
         self.sprite_offset: Vector2 = pygame.Vector2(
@@ -51,14 +54,14 @@ class GrassManager[G: str | int]:
 
         self._gap: int = gap
         self._gap_squared: int = self._gap**2
-        self._spatial_grid: dict[tuple[int, int], list[Vector2]] = defaultdict(
-            list
+        self._spatial_grid: defaultdict[tuple[int, int], list[Vector2]] = (
+            defaultdict(list)
         )
         self._grass_grid: defaultdict[
             tuple[int, int], list[GrassSprite[G]]
         ] = defaultdict(list)
-        self.counter: int = 0
 
+        self.counter: int = 0
         print(self._gap)
 
     def add_grass(
@@ -85,7 +88,7 @@ class GrassManager[G: str | int]:
                     return
 
         if grass_variants is None:
-            grass_id = random.choice(tuple(self.grass_objects.keys()))
+            grass_id = random.choice(self.sprite_ids)
         else:
             grass_id = random.choice(grass_variants)
 
