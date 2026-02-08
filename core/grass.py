@@ -171,11 +171,13 @@ class GrassManager[G: str | int]:
         # Yes. I am micro optimizing. Deal with it.
 
         x, y = position
+        g = self._gap
+
         # fmt: off
         grid = (
-            (x - self._gap, y + self._gap), (x, y + self._gap), (x + self._gap, y + self._gap),
-            (x - self._gap, y            ), (x, y            ), (x + self._gap, y            ),
-            (x - self._gap, y - self._gap), (x, y - self._gap), (x + self._gap, y - self._gap),
+            (x - g, y + g), (x, y + g), (x + g, y + g),
+            (x - g, y    ), (x, y    ), (x + g, y    ),
+            (x - g, y - g), (x, y - g), (x + g, y - g),
         )
         # fmt: on
 
