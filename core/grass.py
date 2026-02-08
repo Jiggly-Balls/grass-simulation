@@ -23,7 +23,7 @@ class GrassSprite[G: str | int]:
     ) -> None:
         self.image_id: G = image_id
         self.position: Vector2 = position
-        print(self.position)
+        # print(self.position)
 
 
 class GrassManager[G: str | int]:
@@ -55,18 +55,36 @@ class GrassManager[G: str | int]:
         self._spatial_grid: dict[tuple[int, int], list[Vector2]] = defaultdict(
             list
         )
-        self._grass: defaultdict[tuple[int, int], set[GrassSprite[G]]] = (
-            defaultdict(set)
+        self._grass: defaultdict[tuple[int, int], list[GrassSprite[G]]] = (
+            defaultdict(list)
         )
+        self.counter: int = 0
 
         print(self._gap)
 
     def add_grass(
-        self, position: Vector2, grass_variants: None | Sequence[G] = None
+        self,
+        position: Vector2,
+        tile_size: tuple[int, int] = (1, 1),
+        grass_variants: None | Sequence[G] = None,
     ) -> None:
         """
         adds a blade of grass
         """
+        if tile_size != (1, 1):
+            for x in range(0, tile_size[0] * self._gap, self._gap):
+                for y in range(0, tile_size[1] * self._gap, self._gap):
+                    vec = pygame.Vector2(position.x + x, position.y + y)
+                    self.add_grass(vec)
+
+        spatial_position: tuple[int, int] = self._lock_grid(
+            (int(position.x), int(position.y))
+        )
+        for grid_cell in self._get_boundaries(spatial_position):
+            for vector in self._spatial_grid[grid_cell]:
+                if (position - vector).length_squared() < self._gap_squared:
+                    return
+
         if grass_variants is None:
             grass_id = random.choice(tuple(self.grass_objects.keys()))
         else:
@@ -76,8 +94,16 @@ class GrassManager[G: str | int]:
             int(position.x // self.camera_width),
             int(position.y // self.camera_height),
         )
-        grass = GrassSprite(image_id=grass_id, position=position)
-        self._grass[key].add(grass)
+
+        # self._grass[key].add(grass)
+        bisect.insort(
+            self._grass[key],
+            GrassSprite(grass_id, position),
+            key=lambda grass_sprite: grass_sprite.position.y,
+        )
+        self._spatial_grid[spatial_position].append(position)
+        self.counter += 1
+        print(f"PLACED {self.counter} BLADES OF GRASS")
 
     def _cast_rect(self, anchor: str, position: Vector2) -> FRect:
         frect = pygame.FRect()
@@ -91,8 +117,6 @@ class GrassManager[G: str | int]:
         """
         returns iterator of all grass from (camera_x, camera_y) to (camera_x + view_width - 1, camera_y + view_width - 1)
         """
-        # camera_pos -= self.sprite_offset
-
         (key_x, key_y) = (
             int(camera_pos.x // self.camera_width),
             int(camera_pos.y // self.camera_height),

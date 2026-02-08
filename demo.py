@@ -60,7 +60,7 @@ class MainGame(BaseState, state_name=WorldEnum.MAIN_GAME):
 
     def process_update(self, dt: float) -> None:
         self.window.fill((50, 50, 50))
-        print(self.camera)
+        # print(self.camera)
         self.handle_add_grass()
         self.grass_manager.draw(self.window, self.camera)
         self.handle_brush()
@@ -80,7 +80,9 @@ class MainGame(BaseState, state_name=WorldEnum.MAIN_GAME):
             #     destination, (self.tile_size, self.tile_size)
             # )
 
-            self.grass_manager.add_grass(destination)
+            self.grass_manager.add_grass(
+                destination, (self.tile_size, self.tile_size)
+            )
 
     def handle_brush(self) -> None:
         clicking = pygame.mouse.get_pressed()[0]
