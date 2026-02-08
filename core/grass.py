@@ -71,8 +71,8 @@ class GrassManager[G: str | int]:
         adds a blade of grass
         """
         if tile_size != (1, 1):
-            for x in range(0, tile_size[0] * self._gap, self._gap - 1):
-                for y in range(0, tile_size[1] * self._gap, self._gap - 1):
+            for x in range(0, tile_size[0] * self._gap, self._gap // 2):
+                for y in range(0, tile_size[1] * self._gap, self._gap // 2):
                     vec = pygame.Vector2(position.x + x, position.y + y)
                     self.add_grass(vec)
 
@@ -173,9 +173,9 @@ class GrassManager[G: str | int]:
         x, y = position
         # fmt: off
         grid = (
-            ((x - 1) * self._gap, (y + 1) * self._gap), (x * self._gap, (y + 1) * self._gap), ((x + 1) * self._gap, (y + 1) * self._gap),
-            ((x - 1) * self._gap, (y    ) * self._gap), (x            , (y    )            ), ((x + 1) * self._gap, (y    ) * self._gap),
-            ((x - 1) * self._gap, (y - 1) * self._gap), (x * self._gap, (y - 1) * self._gap), ((x + 1) * self._gap, (y - 1) * self._gap),
+            (x - self._gap, y + self._gap), (x, y + self._gap), (x + self._gap, y + self._gap),
+            (x - self._gap, y            ), (x, y            ), (x + self._gap, y            ),
+            (x - self._gap, y - self._gap), (x, y - self._gap), (x + self._gap, y - self._gap),
         )
         # fmt: on
 
