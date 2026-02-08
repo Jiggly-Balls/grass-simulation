@@ -48,16 +48,15 @@ class GrassManager[G: str | int]:
         self.grass_objects: dict[G, Surface] = grass_objects
         self.camera_width: int = camera_width + self.sprite_width
         self.camera_height: int = camera_height + self.sprite_height
-        self.sprites: list[GrassSprite[G]] = []
 
         self._gap: int = gap
         self._gap_squared: int = self._gap**2
         self._spatial_grid: dict[tuple[int, int], list[Vector2]] = defaultdict(
             list
         )
-        self._grass: defaultdict[tuple[int, int], list[GrassSprite[G]]] = (
-            defaultdict(list)
-        )
+        self._grass_grid: defaultdict[
+            tuple[int, int], list[GrassSprite[G]]
+        ] = defaultdict(list)
         self.counter: int = 0
 
         print(self._gap)
@@ -95,9 +94,8 @@ class GrassManager[G: str | int]:
             int(position.y // self.camera_height),
         )
 
-        # self._grass[key].add(grass)
         bisect.insort(
-            self._grass[key],
+            self._grass_grid[key],
             GrassSprite(grass_id, position),
             key=lambda grass_sprite: grass_sprite.position.y,
         )
@@ -105,15 +103,9 @@ class GrassManager[G: str | int]:
         self.counter += 1
         print(f"PLACED {self.counter} BLADES OF GRASS")
 
-    def _cast_rect(self, anchor: str, position: Vector2) -> FRect:
-        frect = pygame.FRect()
-        setattr(frect, anchor, position)
-        return frect
-
     def get_grass(
         self, camera_pos: Vector2
     ) -> Generator[tuple[Surface, FRect], None, None]:
-        # returns list of all grass from (camera_x, camera_y) to (camera_x + view_length, camera_y + view_height)
         """
         returns iterator of all grass from (camera_x, camera_y) to (camera_x + view_width - 1, camera_y + view_width - 1)
         """
@@ -140,55 +132,21 @@ class GrassManager[G: str | int]:
             )
             for kx in (key_x, key_x + 1)
             for ky in (key_y, key_y + 1)
-            if (kx, ky) in self._grass
-            for sprite in self._grass[(kx, ky)]
+            if (kx, ky) in self._grass_grid
+            for sprite in self._grass_grid[(kx, ky)]
             if x_min <= sprite.position.x <= x_max
             and y_min <= sprite.position.y <= y_max
         )
 
-    def add(
-        self,
-        position: Vector2,
-        tile_size: tuple[int, int] = (1, 1),
-        grass_variants: None | Sequence[G] = None,
-    ) -> None:
-        if tile_size != (1, 1):
-            for x in range(0, tile_size[0] * self._gap, self._gap):
-                for y in range(0, tile_size[1] * self._gap, self._gap):
-                    vec = pygame.Vector2(position.x + x, position.y + y)
-                    self.add(vec)
-
-        spatial_position: tuple[int, int] = self._lock_grid(
-            (int(position.x), int(position.y))
-        )
-        for grid_cell in self._get_boundaries(spatial_position):
-            for vector in self._spatial_grid[grid_cell]:
-                if (position - vector).length_squared() < self._gap_squared:
-                    return
-
-        if grass_variants is None:
-            grass_id = random.choice(tuple(self.grass_objects.keys()))
-        else:
-            grass_id = random.choice(grass_variants)
-
-        bisect.insort(
-            self.sprites,
-            GrassSprite(grass_id, position),
-            key=lambda grass_sprite: grass_sprite.position.y,
-        )
-        self._spatial_grid[spatial_position].append(position)
-
-        # print(f"PLACED {len(self.sprites)} GRASS BLADES")
-
     def draw(self, surface: Surface, position: Vector2) -> None:
-        # data: Generator[tuple[Surface, Vector2], None, None] = (
-        #     (self.grass_objects[sprite.image_id], sprite.position + offset)
-        #     for sprite in self.sprites
-        # )
-
         data = self.get_grass(position)
 
         surface.blits(data)
+
+    def _cast_rect(self, anchor: str, position: Vector2) -> FRect:
+        frect = pygame.FRect()
+        setattr(frect, anchor, position)
+        return frect
 
     def _lock_grid(self, pos: tuple[int, int]) -> tuple[int, int]:
         return (
