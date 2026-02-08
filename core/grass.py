@@ -112,7 +112,7 @@ class GrassManager[G: str | int]:
         """
         returns iterator of all grass from (camera_x, camera_y) to (camera_x + view_width - 1, camera_y + view_width - 1)
         """
-        (key_x, key_y) = (
+        key_x, key_y = (
             int(camera_pos.x // self.camera_width),
             int(camera_pos.y // self.camera_height),
         )
