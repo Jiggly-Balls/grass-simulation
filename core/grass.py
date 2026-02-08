@@ -71,8 +71,8 @@ class GrassManager[G: str | int]:
         adds a blade of grass
         """
         if tile_size != (1, 1):
-            for x in range(0, tile_size[0] * self._gap, self._gap):
-                for y in range(0, tile_size[1] * self._gap, self._gap):
+            for x in range(0, tile_size[0] * self._gap, self._gap - 1):
+                for y in range(0, tile_size[1] * self._gap, self._gap - 1):
                     vec = pygame.Vector2(position.x + x, position.y + y)
                     self.add_grass(vec)
 
