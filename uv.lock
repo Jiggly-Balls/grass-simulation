@@ -15,15 +15,6 @@ wheels = [
 ]
 
 [[package]]
-name = "esper"
-version = "3.6"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/0f/97/ec81038bb5a9eb49c12f425c262fbfb2e79db572362b5f9208256c228e63/esper-3.6.tar.gz", hash = "sha256:e4429c9e16440d8257f92a52bc2eeaf0c0303b723d77c866a33eecb3a5714d03", size = 36448, upload-time = "2026-01-24T05:27:47.458Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/4e/be/d9bff8b722be6443daa09d93fe0abd3767f2eb34c9dca21d4c28a4ebe20c/esper-3.6-py3-none-any.whl", hash = "sha256:7f4284c45084521f94541aa45346c868057eb6be62515ebe05129edeb09d28cd", size = 13964, upload-time = "2026-01-24T05:27:42.147Z" },
-]
-
-[[package]]
 name = "game-state"
 version = "2.4.0"
 source = { registry = "https://pypi.org/simple" }
@@ -34,10 +25,9 @@ wheels = [
 
 [[package]]
 name = "grass-simulation"
-version = "1.0.0"
+version = "1.1.0b0"
 source = { virtual = "." }
 dependencies = [
-    { name = "esper" },
     { name = "game-state" },
     { name = "pygame-ce" },
 ]
@@ -50,7 +40,6 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "esper", specifier = ">=3.6" },
     { name = "game-state", specifier = ">=2.1.0" },
     { name = "pygame-ce", specifier = ">=2.5.6" },
 ]
