@@ -43,8 +43,8 @@ def get_sprite_sheet(path: str, tile_size: int) -> list[Surface]:
 
 
 class GrassNode[N]:
-    def __init__(self, lead: int, *data: N) -> None:
-        self.lead: int = lead
+    def __init__(self, lead: float, *data: N) -> None:
+        self.lead: float = lead
         self.data: list[N] = list(data)
 
         self.left: None | GrassNode[N] = None
@@ -58,7 +58,7 @@ class BinaryGrassTree[N]:
     def __init__(self) -> None:
         self.root: None | GrassNode[N] = None
 
-    def insert_node(self, lead: int, *data: N) -> None:
+    def insert_node(self, lead: float, *data: N) -> None:
         if self.root is None:
             self.root = GrassNode(lead, *data)
         else:
@@ -76,7 +76,7 @@ class BinaryGrassTree[N]:
             yield from self._recursive_inorder(node.right)
 
     def _recursive_insert(
-        self, node: GrassNode[N], lead: int, *data: N
+        self, node: GrassNode[N], lead: float, *data: N
     ) -> None:
         if lead == node.lead:
             node.data.extend(data)
