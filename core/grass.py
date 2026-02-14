@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-import bisect
 import random
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
 import pygame
 from pygame.math import Vector2
+from pygame.rect import FRect
 from pygame.surface import Surface
+
+from core.utils import BinaryGrassTree
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
@@ -58,8 +60,8 @@ class GrassManager[G: str | int]:
             defaultdict(list)
         )
         self._grass_grid: defaultdict[
-            tuple[int, int], list[GrassSprite[G]]
-        ] = defaultdict(list)
+            tuple[int, int], BinaryGrassTree[GrassSprite[G]]
+        ] = defaultdict(BinaryGrassTree)
 
         self.counter: int = 0
         print(self._gap)
@@ -96,14 +98,12 @@ class GrassManager[G: str | int]:
             int(position.x // self.camera_width),
             int(position.y // self.camera_height),
         )
+        grass = GrassSprite(grass_id, position)
 
-        bisect.insort(
-            self._grass_grid[key],
-            GrassSprite(grass_id, position),
-            key=lambda grass_sprite: grass_sprite.position.y,
-        )
+        self._grass_grid[key].insert_node(grass.position.y, grass)
         self._spatial_grid[spatial_position].append(position)
         self.counter += 1
+
         print(f"PLACED {self.counter} BLADES OF GRASS")
 
     def get_grass(
@@ -125,6 +125,15 @@ class GrassManager[G: str | int]:
             int(camera_pos.y + self.camera_height - 1),
         )
 
+        all_sprites: list[GrassSprite[G]] = []
+
+        for kx in (key_x, key_x + 1):
+            for ky in (key_y, key_y + 1):
+                for sprite_list in self._grass_grid[
+                    (kx, ky)
+                ].inorder_traversal():
+                    all_sprites.extend(sprite_list)
+
         return (
             (
                 self.grass_objects[sprite.image_id],
@@ -133,17 +142,13 @@ class GrassManager[G: str | int]:
                     sprite.position - camera_pos - self.sprite_offset,
                 ),
             )
-            for kx in (key_x, key_x + 1)
-            for ky in (key_y, key_y + 1)
-            if (kx, ky) in self._grass_grid
-            for sprite in self._grass_grid[(kx, ky)]
+            for sprite in all_sprites
             if x_min <= sprite.position.x <= x_max
             and y_min <= sprite.position.y <= y_max
         )
 
     def draw(self, surface: Surface, position: Vector2) -> None:
         data = self.get_grass(position)
-
         surface.blits(data)
 
     def _cast_rect(self, anchor: str, position: Vector2) -> FRect:
