@@ -40,7 +40,7 @@ class GrassManager[G: str | int]:
     ) -> None:
         if gap < 0:
             raise ValueError(
-                f"Expected `gap` argument to be a positive value. Instead got {gap=}"
+                f"Expected `gap` argument to be a non-negative value. Instead got {gap=}"
             )
 
         self.sprite_ids: tuple[G, ...] = tuple(grass_objects.keys())
@@ -50,7 +50,9 @@ class GrassManager[G: str | int]:
             self.sprite_width, self.sprite_height
         )
 
-        self.grass_objects: dict[G, Surface] = grass_objects
+        self.grass_objects: dict[G, dict[int, Surface]] = {
+            id: {0: grass_objects[id]} for id in grass_objects
+        }
         self.camera_width: int = camera_width + self.sprite_width
         self.camera_height: int = camera_height + self.sprite_height
 
@@ -62,6 +64,7 @@ class GrassManager[G: str | int]:
         self._grass_grid: defaultdict[
             tuple[int, int], BinaryGrassTree[GrassSprite[G]]
         ] = defaultdict(BinaryGrassTree)
+        self._applied_forces: dict[tuple[int, int], int] = {}
 
         self.counter: int = 0
         print(self._gap)
@@ -76,8 +79,9 @@ class GrassManager[G: str | int]:
         adds a blade of grass
         """
         if tile_size != (1, 1):
-            for x in range(0, tile_size[0] * self._gap, self._gap // 2):
-                for y in range(0, tile_size[1] * self._gap, self._gap // 2):
+            step = max(self._gap // 2, 1)
+            for x in range(0, tile_size[0] * self._gap, step):
+                for y in range(0, tile_size[1] * self._gap, step):
                     vec = pygame.Vector2(position.x + x, position.y + y)
                     self.add_grass(vec)
 
@@ -136,7 +140,11 @@ class GrassManager[G: str | int]:
 
         return (
             (
-                self.grass_objects[sprite.image_id],
+                self.grass_objects[sprite.image_id][
+                    self._applied_forces.get(
+                        (int(sprite.position.x), int(sprite.position.y)), 0
+                    )
+                ],
                 self._cast_rect(
                     "topleft",
                     sprite.position - camera_pos - self.sprite_offset,
@@ -150,6 +158,41 @@ class GrassManager[G: str | int]:
     def draw(self, surface: Surface, position: Vector2) -> None:
         data = self.get_grass(position)
         surface.blits(data)
+        self.clear_force()
+
+    def apply_force(self, position: tuple[int, int], radius_size: int) -> None:
+        for point in self._get_circle_points(
+            position[0], position[1], radius_size
+        ):
+            rotation = round((position[0] - point[0]) / 10) * 10
+            if rotation < -180:
+                rotation = -180
+            elif rotation > 180:
+                rotation = 180
+            # print(rotation)
+            self._applied_forces[point] = rotation
+
+            for id in self.grass_objects:
+                if self.grass_objects[id].get(rotation) is None:
+                    self.grass_objects[id][rotation] = pygame.transform.rotate(
+                        self.grass_objects[id][0], rotation
+                    )
+
+    def clear_force(self) -> None:
+        self._applied_forces.clear()
+
+    def _get_circle_points(
+        self, cx: int, cy: int, radius: int
+    ) -> Generator[tuple[int, int], None, None]:
+        radius2 = radius * radius
+
+        for x in range(cx - radius, cx + radius + 1):
+            for y in range(cy - radius, cy + radius + 1):
+                dx = x - cx
+                dy = y - cy
+
+                if dx * dx + dy * dy <= radius2:
+                    yield (x, y)
 
     def _cast_rect(self, anchor: str, position: Vector2) -> FRect:
         frect = pygame.FRect()

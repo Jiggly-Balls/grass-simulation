@@ -61,8 +61,8 @@ class MainGame(BaseState, state_name=WorldEnum.MAIN_GAME):
     def process_update(self, dt: float) -> None:
         self.window.fill((50, 50, 50))
         self.handle_add_grass()
-        self.grass_manager.draw(self.window, self.camera)
         self.handle_brush()
+        self.grass_manager.draw(self.window, self.camera)
         self.handle_movement(dt)
         self.handle_fps()
 
@@ -79,11 +79,12 @@ class MainGame(BaseState, state_name=WorldEnum.MAIN_GAME):
 
     def handle_brush(self) -> None:
         clicking = pygame.mouse.get_pressed()[0]
+        mouse_pos = pygame.mouse.get_pos()
 
         pygame.draw.circle(
             self.window,
             (255, 255, 255),
-            pygame.mouse.get_pos(),
+            mouse_pos,
             ((self.tile_size / 2) - int(clicking)) * 15,
             2 if not clicking else 0,
         )
@@ -91,10 +92,18 @@ class MainGame(BaseState, state_name=WorldEnum.MAIN_GAME):
             pygame.draw.circle(
                 self.window,
                 (255, 255, 255),
-                pygame.mouse.get_pos(),
+                mouse_pos,
                 self.tile_size * 15,
                 1,
             )
+
+        self.grass_manager.apply_force(
+            (
+                int(mouse_pos[0] + self.camera.x),
+                int(mouse_pos[1] + self.camera.y),
+            ),
+            self.tile_size,
+        )
 
     def handle_movement(self, dt: float) -> None:
         key_pressed = pygame.key.get_pressed()
